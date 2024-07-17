@@ -1,23 +1,21 @@
-import reactLogo from './assets/react.svg';
-import ItemListContainer from './components/ItemListContainer/ItemListContainer';
 import NavBar from './components/NavBar/NavBar';
-import viteLogo from '/vite.svg';
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ItemListContainer from './components/ItemListContainer/ItemListContainer';
+import ItemDetailContainer from './components/ItemDetailContainer/ItemDetailContainer';
 
 function App() {
-  const [cartCount, setCartCount] = useState(5);
-
   return (
-    <>
-      <NavBar cartCount={cartCount} title="Mi Tienda" />
-      <button
-        className="btn btn-primary"
-        onClick={() => setCartCount(cartCount + 1)}
-      >
-        Agregar al carrito
-      </button>
-      <ItemListContainer grettings="Bienvenido a la pasteleria de Eduardo"></ItemListContainer>
-    </>
+    <BrowserRouter>
+      <NavBar />
+      <Routes>
+        <Route
+          path="/"
+          element={<ItemListContainer greetings={'Lista de Productos'} />}
+        />
+        <Route path="/category/:category" element={<ItemListContainer />} />
+        <Route path="/detail/:id" element={<ItemDetailContainer />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
