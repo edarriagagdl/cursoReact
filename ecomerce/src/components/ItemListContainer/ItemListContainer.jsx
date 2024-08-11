@@ -1,30 +1,31 @@
 import { useParams } from 'react-router-dom';
-import { getProducts, getProductsByCategory } from '../../asyncMock';
 import ItemList from '../ItemList/ItemList';
 import { useEffect, useState } from 'react';
+import { db } from '../../services/firebase';
+import { collection, query } from 'firebase/firestore';
+import { getDocs, where } from 'firebase/firestore';
+import { useNotification } from '../../context/NotificationContext';
 
 const ItemListContainer = ({ greetings }) => {
   const [products, setProducts] = useState([]);
   const { category } = useParams();
-  console.log(category);
+  const { setNotification } = useNotification();
+
   useEffect(() => {
-    if (!category) {
-      getProducts()
-        .then((products) => {
-          setProducts(products);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      getProductsByCategory(category)
-        .then((products) => {
-          setProducts(products);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+    const collectionRef = category
+      ? query(collection(db, 'products'), where('category', '==', category))
+      : collection(db, 'products');
+    getDocs(collectionRef)
+      .then((querySnapshot) => {
+        const products = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProducts(products);
+      })
+      .catch((error) => {
+        setNotification('error', 'Error al cargar los productos');
+      });
   }, [category]);
 
   return (
